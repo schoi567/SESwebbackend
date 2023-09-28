@@ -7,6 +7,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+
+import java.io.File;
+
 import org.springframework.stereotype.Controller;
  
 
@@ -24,8 +27,8 @@ public class applicants {
     private String lastname;
     private String Departments; 
     @Lob
-    @Column(columnDefinition = "LONGTEXT")
-    private String resume;
+    @Column(columnDefinition = "MEDIUMBLOB")
+    private byte[] resume;
 	public Long getId() {
 		return id;
 	}
@@ -56,13 +59,17 @@ public class applicants {
 	public void setDepartments(String departments) {
 		Departments = departments;
 	}
-	public String getResume() {
+	
+	
+	
+ 
+	public byte[] getResume() {
 		return resume;
 	}
-	public void setResume(String resume) {
+	public void setResume(byte[] resume) {
 		this.resume = resume;
 	}
-	public applicants(Long id, String email, String firstname, String lastname, String departments, String resume) {
+	public applicants(Long id, String email, String firstname, String lastname, String departments, byte[] resume) {
 		super();
 		this.id = id;
 		this.email = email;
