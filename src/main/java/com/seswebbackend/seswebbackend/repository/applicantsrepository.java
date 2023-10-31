@@ -8,7 +8,7 @@ import com.seswebbackend.seswebbackend.entity.*;
 public interface applicantsrepository extends JpaRepository<applicants, Long> {
  
 	applicants findByid(Long id);	
- 
+	void deleteById(Long id);	
  
  
 	

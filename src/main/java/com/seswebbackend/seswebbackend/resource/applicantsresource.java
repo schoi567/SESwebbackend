@@ -1,5 +1,5 @@
 package com.seswebbackend.seswebbackend.resource;
-
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; 
 import java.io.File;
@@ -9,9 +9,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,13 +26,19 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
 
 
-
+ 
  
 
-@CrossOrigin(origins = {"*", "http://192.168.10.107:4200", 
-		"http://192.168.10.107:4200/adminlogin"})
- 
+@CrossOrigin(origins = {"*", 
+		"http://localhost:4200",
+		"http://localhost:4200/admin", 
+		"http://seswebsite.s3-website-us-east-1.amazonaws.com", 
+		"http://seswebsite.s3-website-us-east-1.amazonaws.com/adminlogin",
+		"http://seswebsite.s3-website-us-east-1.amazonaws.com/admin",	
 
+})
+ 
+ 
 @RestController
 public class applicantsresource {
 	@Autowired
@@ -58,6 +66,24 @@ public class applicantsresource {
 			return adminrepository.findAll();
 		} 
 		
+	 
+
+		
+		@PostMapping("/createadmin")
+		public ResponseEntity<admin> CreateAdminAccounts(
+				   @RequestParam("adminid") String adminid,
+				    @RequestParam("password") String password)
+				    		throws IOException {
+			admin admin1 = new admin(); 
+			admin1.setAdminid(adminid);
+			admin1.setPassword(password);
+			    adminrepository.save(admin1); 
+			    URI location = ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand()
+						.toUri();		
+				return ResponseEntity.created(location).build();
+			
+		} 
+		 
 		@GetMapping("/admin/{username}")
 		public admin findbyadminid(@PathVariable String username){
 			return adminrepository.findByAdminid(username);
@@ -70,6 +96,7 @@ public class applicantsresource {
 		    @RequestParam("firstname") String firstname,
 		    @RequestParam("lastname") String lastname,
 		    @RequestParam("email") String email,
+		    @RequestParam("route") String route,
 		    @RequestParam("department") String department,
 		    @RequestParam("resume") MultipartFile resumeFile
 		) throws IOException {
@@ -77,6 +104,7 @@ public class applicantsresource {
 		    applicant1.setFirstname(firstname);
 		    applicant1.setLastname(lastname);
 		    applicant1.setEmail(email);
+		    applicant1.setRoute(route);   
 		    applicant1.setDepartments(department);
 		    applicant1.setResume(resumeFile.getBytes());
 
@@ -123,6 +151,19 @@ public class applicantsresource {
 		            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		        }
 		    }
+		    
+		    
+		     @DeleteMapping("/app/{id}")
+		    public ResponseEntity<Void> deleteUser(@PathVariable("id") long id) {
+		        Optional<applicants> optionalApplicant = applicantsrepository.findById(id);
+		        if (optionalApplicant.isPresent()) {
+		            applicantsrepository.deleteById(id);
+		            return ResponseEntity.ok().build();
+		        } else {
+		            return ResponseEntity.notFound().build();
+		        }
+		    }
+		    
 		
 		*/ 
 		    
@@ -151,6 +192,7 @@ public class applicantsresource {
 		            
 		            
 		            HttpHeaders headers = new HttpHeaders();
+		            
 		            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 		            headers.setContentLength(resumeData.length);  // Set the content length
  
@@ -162,9 +204,24 @@ public class applicantsresource {
 		            logger.error("Error reading file", e);
 		            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		        }
+		   
+		    }
+		    
+		   
+		     
+		    @GetMapping("/app/{id}")
+		    public ResponseEntity<applicants> getUser(@PathVariable("id") long id) {
+		        Optional<applicants> optionalApplicant = applicantsrepository.findById(id);
+		        if (optionalApplicant.isPresent()) {applicantsrepository.deleteById(id);
+		            return ResponseEntity.ok(optionalApplicant.get());
+		        } else {
+		            return ResponseEntity.notFound().build();
+		        }
 		    }
 
-		
+		 
+		    
+		    
 }
 
 	 

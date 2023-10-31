@@ -21,8 +21,15 @@ public class applicants {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
-    @Column
+    public String getRoute() {
+		return route;
+	}
+	public void setRoute(String route) {
+		this.route = route;
+	}
+	@Column
 	private String email;
+    private String route;
     private String firstname;
     private String lastname;
     private String Departments; 
@@ -69,10 +76,13 @@ public class applicants {
 	public void setResume(byte[] resume) {
 		this.resume = resume;
 	}
-	public applicants(Long id, String email, String firstname, String lastname, String departments, byte[] resume) {
+	 
+	public applicants(Long id, String email, String route, String firstname, String lastname, String departments,
+			byte[] resume) {
 		super();
 		this.id = id;
 		this.email = email;
+		this.route = route;
 		this.firstname = firstname;
 		this.lastname = lastname;
 		Departments = departments;
