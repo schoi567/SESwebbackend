@@ -9,7 +9,10 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 
 import java.io.File;
+import java.util.Date;
 
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import org.springframework.stereotype.Controller;
  
 
@@ -33,6 +36,10 @@ public class applicants {
     private String firstname;
     private String lastname;
     private String Departments; 
+    @Temporal(TemporalType.TIMESTAMP) // This will store both date and time. Use TemporalType.DATE for just the date.
+    private Date Date; // Use java.util.Date or java.time.LocalDateTime
+    private String status; 
+    
     @Lob
     @Column(columnDefinition = "MEDIUMBLOB")
     private byte[] resume;
@@ -69,7 +76,15 @@ public class applicants {
 	
 	
 	
+	
+	
  
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
 	public byte[] getResume() {
 		return resume;
 	}
@@ -77,8 +92,16 @@ public class applicants {
 		this.resume = resume;
 	}
 	 
+ 
+	
+	
+	
+
+
+	
+	
 	public applicants(Long id, String email, String route, String firstname, String lastname, String departments,
-			byte[] resume) {
+			java.util.Date date, String status, byte[] resume) {
 		super();
 		this.id = id;
 		this.email = email;
@@ -86,7 +109,15 @@ public class applicants {
 		this.firstname = firstname;
 		this.lastname = lastname;
 		Departments = departments;
+		Date = date;
+		this.status = status;
 		this.resume = resume;
+	}
+	public Date getDate() {
+		return Date;
+	}
+	public void setDate(Date date) {
+		Date = date;
 	}
 	public applicants() {
 		super();

@@ -5,14 +5,21 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,7 +41,8 @@ import org.springframework.http.HttpStatus;
 		"http://localhost:4200/admin", 
 		"http://seswebsite.s3-website-us-east-1.amazonaws.com", 
 		"http://seswebsite.s3-website-us-east-1.amazonaws.com/adminlogin",
-		"http://seswebsite.s3-website-us-east-1.amazonaws.com/admin",	
+		"http://seswebsite.s3-website-us-east-1.amazonaws.com/admin",
+		
 
 })
  
@@ -95,9 +103,10 @@ public class applicantsresource {
 		public ResponseEntity<applicants> createApplicant(
 		    @RequestParam("firstname") String firstname,
 		    @RequestParam("lastname") String lastname,
-		    @RequestParam("email") String email,
+		    @RequestParam("email") String email,   
 		    @RequestParam("route") String route,
 		    @RequestParam("department") String department,
+		    @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,				    
 		    @RequestParam("resume") MultipartFile resumeFile
 		) throws IOException {
 		    applicants applicant1 = new applicants(); 
@@ -106,9 +115,15 @@ public class applicantsresource {
 		    applicant1.setEmail(email);
 		    applicant1.setRoute(route);   
 		    applicant1.setDepartments(department);
+		    applicant1.setDate(date);
 		    applicant1.setResume(resumeFile.getBytes());
 
+		    
+		    
+		    
 		    applicantsrepository.save(applicant1); 
+		    
+		    applicant1.getDate(); 
 		    
 		    URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
 		        .buildAndExpand(applicant1.getId()).toUri();
@@ -116,56 +131,10 @@ public class applicantsresource {
 		    return ResponseEntity.created(location).build();
 		}
 	   
-		/*
-		@GetMapping("/downloadResume/{id}")
-		public ResponseEntity<byte[]> downloadResume(@PathVariable Long id) {
-		    byte[] resumeData = applicants.getResume(); 
-		    
-
-		    HttpHeaders headers = new HttpHeaders();
-		    headers.setContentType(MediaType.APPLICATION_PDF);
-		    headers.setContentDisposition(ContentDisposition.builder("attachment").filename("resume.pdf").build());  // assuming it's a PDF, change filename accordingly
-
-		    return new ResponseEntity<>(resumeData, headers, HttpStatus.OK);
-		}
 		
-		 @GetMapping("/downloadResume/{id}")
-		    public ResponseEntity<byte[]> downloadResume(@PathVariable Long id) {
-		        try {   // Start of the try-catch block
-		            byte[] resumeData = applicants.getResume();
-		            
-		            if (resumeData.length == 0) {
-		                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		            }
-		            
-		            logger.info("Sending file of size: " + resumeData.length + " bytes");
-
-		            HttpHeaders headers = new HttpHeaders();
-		            headers.setContentType(MediaType.APPLICATION_PDF);
-		            headers.setContentLength(resumeData.length);  // Set the content length
-		            headers.setContentDisposition(ContentDisposition.builder("attachment").filename("resume.pdf").build());
-
-		            return new ResponseEntity<>(resumeData, headers, HttpStatus.OK);
-		        } catch (Exception e) {
-		            logger.error("Error reading file", e);
-		            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		        }
-		    }
-		    
-		    
-		     @DeleteMapping("/app/{id}")
-		    public ResponseEntity<Void> deleteUser(@PathVariable("id") long id) {
-		        Optional<applicants> optionalApplicant = applicantsrepository.findById(id);
-		        if (optionalApplicant.isPresent()) {
-		            applicantsrepository.deleteById(id);
-		            return ResponseEntity.ok().build();
-		        } else {
-		            return ResponseEntity.notFound().build();
-		        }
-		    }
-		    
 		
-		*/ 
+		
+
 		    
 		    @GetMapping("/downloadResume/{id}")
 		    public ResponseEntity<byte[]> downloadResume(@PathVariable Long id) {
@@ -218,10 +187,93 @@ public class applicantsresource {
 		            return ResponseEntity.notFound().build();
 		        }
 		    }
-
+//applicants/status/${id}
 		 
+		    @PutMapping("/applicants/status/{id}")
+		    public ResponseEntity<Void> updateApplicantStatus(
+		            @PathVariable Long id,
+		            @RequestParam("status") String status) {	
+		    	  
+		    	applicants = applicantsrepository.findByid(id); 
+		    	 
+		    	applicants.setStatus(status);
+		    	 
+		    	System.out.println(applicants.getStatus());
+		    	
+		    	System.out.println("bd");
+		    	
+		        applicantsrepository.save(applicants);
+		        
+		        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+				        .buildAndExpand(applicants.getId()).toUri();
+				    System.out.println(location);	    
+				    return ResponseEntity.created(location).build();
+				    
+				    
+				    
+				    
+		    }
+ 
+		    
+		    
+		    
 		    
 		    
 }
 
 	 
+
+
+
+
+
+/*
+@GetMapping("/downloadResume/{id}")
+public ResponseEntity<byte[]> downloadResume(@PathVariable Long id) {
+    byte[] resumeData = applicants.getResume(); 
+    
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_PDF);
+    headers.setContentDisposition(ContentDisposition.builder("attachment").filename("resume.pdf").build());  // assuming it's a PDF, change filename accordingly
+
+    return new ResponseEntity<>(resumeData, headers, HttpStatus.OK);
+}
+
+ @GetMapping("/downloadResume/{id}")
+    public ResponseEntity<byte[]> downloadResume(@PathVariable Long id) {
+        try {   // Start of the try-catch block
+            byte[] resumeData = applicants.getResume();
+            
+            if (resumeData.length == 0) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            
+            logger.info("Sending file of size: " + resumeData.length + " bytes");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentLength(resumeData.length);  // Set the content length
+            headers.setContentDisposition(ContentDisposition.builder("attachment").filename("resume.pdf").build());
+
+            return new ResponseEntity<>(resumeData, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error reading file", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    
+     @DeleteMapping("/app/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") long id) {
+        Optional<applicants> optionalApplicant = applicantsrepository.findById(id);
+        if (optionalApplicant.isPresent()) {
+            applicantsrepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
+
+*/ 
