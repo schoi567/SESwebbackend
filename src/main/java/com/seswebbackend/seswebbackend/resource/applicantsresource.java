@@ -208,12 +208,35 @@ public class applicantsresource {
 				        .buildAndExpand(applicants.getId()).toUri();
 				    System.out.println(location);	    
 				    return ResponseEntity.created(location).build();
-				    
-				    
-				    
+	    
 				    
 		    }
  
+		    
+		    
+		    @PutMapping("/applicants/source/{id}")
+		    public ResponseEntity<Void> updateApplicantSource(
+		            @PathVariable Long id,
+		            @RequestParam("route") String route) {	
+		    	  
+		    	applicants = applicantsrepository.findByid(id); 
+		    	 
+		    	applicants.setRoute(route);
+		    	 
+		    	System.out.println(applicants.getRoute());
+		    	
+		    	System.out.println("bd");
+		    	
+		        applicantsrepository.save(applicants);
+		        
+		        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+				        .buildAndExpand(applicants.getId()).toUri();
+				    System.out.println(location);	    
+				    return ResponseEntity.created(location).build();
+	    
+				    
+		    }
+		    
 		    
 		    
 		    
